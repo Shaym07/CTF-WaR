@@ -6,79 +6,95 @@
     <title>CTF War - Ultimate CTF Competition Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #dc2626; --bg: #0a0a0a; --card: #111111; --border: #1f1f1f; }
-        * { font-family: 'JetBrains Mono', monospace; }
-        body { background: var(--bg); color: #e5e5e5; min-height: 100vh; }
+        * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
+        body { background: var(--bg); color: #e5e5e5; min-height: 100vh; margin: 0; }
         .font-display { font-family: 'Orbitron', sans-serif; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
-        .btn-primary { background: var(--primary); color: white; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.2s; }
+        .btn { padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; }
+        .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: #b91c1c; transform: translateY(-1px); }
-        .btn-secondary { background: #262626; color: white; padding: 10px 20px; border-radius: 6px; border: 1px solid #404040; }
+        .btn-secondary { background: #262626; color: white; border: 1px solid #404040; }
         .btn-secondary:hover { background: #333; }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-danger { background: #dc2626; color: white; }
         .input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 10px 14px; border-radius: 6px; width: 100%; }
         .input:focus { outline: none; border-color: var(--primary); }
-        .nav-link { color: #a3a3a3; padding: 8px 16px; border-radius: 6px; transition: all 0.2s; }
+        .select { background: #1a1a1a; border: 1px solid #333; color: white; padding: 10px 14px; border-radius: 6px; }
+        .nav-link { color: #a3a3a3; padding: 8px 16px; border-radius: 6px; transition: all 0.2s; text-decoration: none; }
         .nav-link:hover, .nav-link.active { color: white; background: #1f1f1f; }
-        .badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
         .badge-easy { background: #16a34a20; color: #22c55e; }
         .badge-medium { background: #ca8a0420; color: #eab308; }
         .badge-hard { background: #dc262620; color: #ef4444; }
         .badge-insane { background: #7c3aed20; color: #a855f7; }
-        .glow { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
-        .animate-pulse-slow { animation: pulse 3s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .progress-bar { height: 6px; background: #262626; border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #dc2626, #ef4444); transition: width 0.5s; }
-        .tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
-        .tab.active { border-color: var(--primary); color: white; }
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; }
-        .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .badge-solved { background: #16a34a; color: white; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+        .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 12px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
         .toast { position: fixed; bottom: 20px; right: 20px; padding: 16px 24px; border-radius: 8px; z-index: 200; animation: slideIn 0.3s; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .toast-success { background: #16a34a; }
-        .toast-error { background: #dc2626; }
-        .skeleton { background: linear-gradient(90deg, #1a1a1a 25%, #262626 50%, #1a1a1a 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .category-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 20px; }
-        .achievement { padding: 12px; border-radius: 8px; background: #1a1a1a; border: 1px solid #333; }
-        .achievement.unlocked { border-color: #eab308; background: #eab30810; }
-        .first-blood { animation: bloodPulse 2s infinite; }
-        @keyframes bloodPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 50% { box-shadow: 0 0 20px 10px rgba(220, 38, 38, 0); } }
+        .toast-success { background: #16a34a; color: white; }
+        .toast-error { background: #dc2626; color: white; }
+        .toast-info { background: #2563eb; color: white; }
+        .tab { padding: 12px 24px; cursor: pointer; border-bottom: 2px solid transparent; color: #888; transition: all 0.2s; }
+        .tab:hover { color: #ccc; }
+        .tab.active { border-color: var(--primary); color: white; }
+        .challenge-card { transition: all 0.2s; cursor: pointer; }
+        .challenge-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .challenge-card.solved { border-color: #16a34a50; }
+        .first-blood { color: #dc2626; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .table th { background: #0d0d0d; font-weight: 600; color: #888; text-transform: uppercase; font-size: 11px; }
+        .table tr:hover { background: #151515; }
+        .stats-card { text-align: center; padding: 24px; }
+        .stats-number { font-size: 36px; font-weight: 700; color: var(--primary); }
+        .stats-label { color: #888; font-size: 12px; text-transform: uppercase; margin-top: 8px; }
+        .announcement { border-left: 3px solid var(--primary); padding-left: 16px; margin-bottom: 16px; }
+        .hint-btn { background: #1f1f1f; border: 1px solid #333; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        .hint-btn:hover { background: #262626; }
+        .category-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+        .category-tag { padding: 6px 14px; border-radius: 20px; background: #1f1f1f; color: #888; cursor: pointer; font-size: 13px; }
+        .category-tag:hover, .category-tag.active { background: var(--primary); color: white; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        .admin-nav { background: #0d0d0d; padding: 16px; border-radius: 8px; }
+        .admin-nav a { display: block; padding: 10px 16px; color: #888; text-decoration: none; border-radius: 6px; margin-bottom: 4px; }
+        .admin-nav a:hover, .admin-nav a.active { background: #1a1a1a; color: white; }
     </style>
 </head>
 <body>
     <div id="app"></div>
 
     <script>
-        // Configuration - API URL is same origin since frontend and backend are served together
         const API_URL = window.location.origin;
 
-        // State
         let state = {
             user: null,
             token: localStorage.getItem('ctf_token'),
-            currentPage: 'home',
+            page: 'home',
             challenges: [],
             scoreboard: [],
             teams: [],
-            users: [],
             achievements: [],
-            contests: [],
-            notifications: [],
+            announcements: [],
+            writeups: [],
+            pages: [],
             stats: null,
-            ws: null
+            config: null,
+            ws: null,
+            categoryFilter: '',
+            difficultyFilter: '',
+            searchQuery: ''
         };
 
         // API Helper
         async function api(endpoint, options = {}) {
             const headers = { 'Content-Type': 'application/json' };
             if (state.token) headers['Authorization'] = `Bearer ${state.token}`;
-
             try {
                 const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
                 const data = await res.json();
@@ -90,57 +106,49 @@
             }
         }
 
-        // Toast Notification
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function toast(message, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = message;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 4000);
         }
 
-        // WebSocket Connection
-        function connectWebSocket() {
+        // WebSocket
+        function connectWS() {
             if (state.ws) state.ws.close();
-            const wsUrl = API_URL.replace('http', 'ws') + '/ws';
-            state.ws = new WebSocket(wsUrl);
-
-            state.ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.type === 'first_blood') {
-                    showToast(`🩸 First Blood! ${data.username} solved ${data.challenge}!`, 'success');
-                } else if (data.type === 'scoreboard_update') {
-                    loadScoreboard();
-                }
-            };
-
-            state.ws.onclose = () => setTimeout(connectWebSocket, 5000);
+            try {
+                const wsUrl = API_URL.replace('http', 'ws') + '/ws';
+                state.ws = new WebSocket(wsUrl);
+                state.ws.onopen = () => state.ws.send(JSON.stringify({ type: 'subscribe', channel: 'scoreboard' }));
+                state.ws.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    if (data.type === 'first_blood') toast(`🩸 First Blood! ${data.username} solved ${data.challenge}!`, 'info');
+                    if (data.type === 'scoreboard_update') loadScoreboard();
+                    if (data.type === 'new_announcement') { toast(`📢 ${data.title}`, 'info'); loadAnnouncements(); }
+                };
+                state.ws.onclose = () => setTimeout(connectWS, 5000);
+            } catch (e) {}
         }
 
-        // Auth Functions
+        // Auth
         async function login(email, password) {
-            const data = await api('/api/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password })
-            });
+            const data = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
             state.token = data.token;
             state.user = data.user;
             localStorage.setItem('ctf_token', data.token);
-            showToast('Login successful!');
-            connectWebSocket();
+            toast('Welcome back!');
+            connectWS();
             navigate('challenges');
         }
 
         async function register(username, email, password) {
-            const data = await api('/api/auth/register', {
-                method: 'POST',
-                body: JSON.stringify({ username, email, password })
-            });
+            const data = await api('/auth/register', { method: 'POST', body: JSON.stringify({ username, email, password }) });
             state.token = data.token;
             state.user = data.user;
             localStorage.setItem('ctf_token', data.token);
-            showToast('Registration successful!');
-            connectWebSocket();
+            toast('Registration successful!');
+            connectWS();
             navigate('challenges');
         }
 
@@ -150,410 +158,156 @@
             localStorage.removeItem('ctf_token');
             if (state.ws) state.ws.close();
             navigate('home');
-            showToast('Logged out');
+            toast('Logged out');
         }
 
         async function loadUser() {
             if (!state.token) return;
             try {
-                const data = await api('/api/auth/me');
+                const data = await api('/auth/me');
                 state.user = data.user;
-                connectWebSocket();
-            } catch {
-                logout();
-            }
+                connectWS();
+            } catch { logout(); }
         }
 
         // Data Loading
+        async function loadConfig() {
+            try { state.config = await api('/config'); } catch {}
+        }
+
         async function loadChallenges() {
             try {
-                const data = await api('/api/challenges');
+                const data = await api('/challenges');
                 state.challenges = data.challenges || [];
-            } catch (err) {
-                console.error('Failed to load challenges:', err);
-            }
+            } catch {}
         }
 
         async function loadScoreboard() {
             try {
-                const data = await api('/api/scoreboard');
+                const data = await api('/scoreboard');
                 state.scoreboard = data.scoreboard || [];
-            } catch (err) {
-                console.error('Failed to load scoreboard:', err);
-            }
+            } catch {}
         }
 
         async function loadTeams() {
             try {
-                const data = await api('/api/teams');
+                const data = await api('/teams');
                 state.teams = data.teams || [];
-            } catch (err) {
-                console.error('Failed to load teams:', err);
-            }
+            } catch {}
         }
 
         async function loadAchievements() {
             if (!state.user) return;
             try {
-                const data = await api('/api/achievements');
+                const data = await api('/achievements');
                 state.achievements = data.achievements || [];
-            } catch (err) {
-                console.error('Failed to load achievements:', err);
-            }
+            } catch {}
+        }
+
+        async function loadAnnouncements() {
+            try {
+                const data = await api('/announcements');
+                state.announcements = data.announcements || [];
+            } catch {}
+        }
+
+        async function loadWriteups() {
+            try {
+                const data = await api('/writeups');
+                state.writeups = data.writeups || [];
+            } catch {}
         }
 
         async function loadStats() {
-            try {
-                const data = await api('/api/stats');
-                state.stats = data;
-            } catch (err) {
-                console.error('Failed to load stats:', err);
-            }
+            try { state.stats = await api('/stats'); } catch {}
         }
 
-        // Submit Flag
+        async function loadPages() {
+            try {
+                const data = await api('/pages');
+                state.pages = data.pages || [];
+            } catch {}
+        }
+
+        // Actions
         async function submitFlag(challengeId, flag) {
             try {
-                const data = await api('/api/challenges/submit', {
-                    method: 'POST',
-                    body: JSON.stringify({ challenge_id: challengeId, flag })
-                });
+                const data = await api(`/challenges/${challengeId}/submit`, { method: 'POST', body: JSON.stringify({ flag }) });
                 if (data.correct) {
-                    showToast(`Correct! +${data.points} points${data.first_blood ? ' 🩸 FIRST BLOOD!' : ''}`);
+                    toast(`Correct! +${data.points} points${data.first_blood ? ' 🩸 FIRST BLOOD!' : ''}`);
                     await loadChallenges();
                     await loadUser();
+                    closeModal();
                 } else {
-                    showToast('Incorrect flag', 'error');
+                    toast('Incorrect flag', 'error');
                 }
             } catch (err) {
-                showToast(err.message, 'error');
+                toast(err.message, 'error');
             }
         }
 
-        // Unlock Hint
         async function unlockHint(hintId) {
             try {
-                const data = await api(`/api/hints/${hintId}/unlock`, { method: 'POST' });
-                showToast(`Hint unlocked! (-${data.cost} points)`);
+                const data = await api(`/hints/${hintId}/unlock`, { method: 'POST' });
+                toast(data.already_unlocked ? 'Hint already unlocked' : `Hint unlocked! (-${data.cost} points)`);
                 await loadChallenges();
                 return data.content;
             } catch (err) {
-                showToast(err.message, 'error');
+                toast(err.message, 'error');
+            }
+        }
+
+        async function createTeam(name, description, password) {
+            try {
+                await api('/teams', { method: 'POST', body: JSON.stringify({ name, description, password }) });
+                toast('Team created!');
+                await loadUser();
+                await loadTeams();
+                closeModal();
+            } catch (err) {
+                toast(err.message, 'error');
+            }
+        }
+
+        async function joinTeam(teamId, password) {
+            try {
+                await api(`/teams/${teamId}/join`, { method: 'POST', body: JSON.stringify({ password }) });
+                toast('Joined team!');
+                await loadUser();
+                closeModal();
+            } catch (err) {
+                toast(err.message, 'error');
+            }
+        }
+
+        async function leaveTeam() {
+            if (!confirm('Leave your team?')) return;
+            try {
+                await api(`/teams/${state.user.team_id}/leave`, { method: 'POST' });
+                toast('Left team');
+                await loadUser();
+            } catch (err) {
+                toast(err.message, 'error');
             }
         }
 
         // Navigation
         function navigate(page) {
-            state.currentPage = page;
+            state.page = page;
+            state.categoryFilter = '';
+            state.searchQuery = '';
             render();
 
-            if (page === 'challenges') loadChallenges();
+            if (page === 'challenges') { loadChallenges(); loadAnnouncements(); }
             else if (page === 'scoreboard') loadScoreboard();
             else if (page === 'teams') loadTeams();
             else if (page === 'achievements') loadAchievements();
-            else if (page === 'profile') loadStats();
+            else if (page === 'writeups') loadWriteups();
+            else if (page === 'profile') { loadStats(); loadAchievements(); }
+            else if (page === 'admin') loadStats();
         }
 
-        // Render Functions
-        function render() {
-            const app = document.getElementById('app');
-            app.innerHTML = `
-                ${renderNav()}
-                <main class="container mx-auto px-4 py-8 max-w-7xl">
-                    ${renderPage()}
-                </main>
-            `;
-            attachEventListeners();
-        }
-
-        function renderNav() {
-            return `
-                <nav class="border-b border-gray-800 bg-black/50 backdrop-blur sticky top-0 z-50">
-                    <div class="container mx-auto px-4 max-w-7xl">
-                        <div class="flex items-center justify-between h-16">
-                            <div class="flex items-center gap-8">
-                                <a href="#" onclick="navigate('home')" class="font-display text-2xl font-bold text-red-500">CTF WAR</a>
-                                <div class="hidden md:flex items-center gap-2">
-                                    <a href="#" onclick="navigate('challenges')" class="nav-link ${state.currentPage === 'challenges' ? 'active' : ''}">Challenges</a>
-                                    <a href="#" onclick="navigate('scoreboard')" class="nav-link ${state.currentPage === 'scoreboard' ? 'active' : ''}">Scoreboard</a>
-                                    <a href="#" onclick="navigate('teams')" class="nav-link ${state.currentPage === 'teams' ? 'active' : ''}">Teams</a>
-                                    ${state.user ? `<a href="#" onclick="navigate('achievements')" class="nav-link ${state.currentPage === 'achievements' ? 'active' : ''}">Achievements</a>` : ''}
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                ${state.user ? `
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-yellow-500 font-bold">${state.user.score || 0} pts</span>
-                                        <a href="#" onclick="navigate('profile')" class="nav-link">${state.user.username}</a>
-                                        <button onclick="logout()" class="btn-secondary text-sm">Logout</button>
-                                    </div>
-                                ` : `
-                                    <button onclick="showModal('login')" class="btn-secondary">Login</button>
-                                    <button onclick="showModal('register')" class="btn-primary">Register</button>
-                                `}
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-            `;
-        }
-
-        function renderPage() {
-            switch (state.currentPage) {
-                case 'home': return renderHome();
-                case 'challenges': return renderChallenges();
-                case 'scoreboard': return renderScoreboard();
-                case 'teams': return renderTeams();
-                case 'achievements': return renderAchievements();
-                case 'profile': return renderProfile();
-                default: return renderHome();
-            }
-        }
-
-        function renderHome() {
-            return `
-                <div class="text-center py-20">
-                    <h1 class="font-display text-6xl font-black mb-6">
-                        <span class="text-white">CTF</span>
-                        <span class="text-red-500">WAR</span>
-                    </h1>
-                    <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-                        The ultimate Capture The Flag competition platform.
-                        Test your hacking skills, solve challenges, and compete with teams worldwide.
-                    </p>
-                    <div class="flex justify-center gap-4 mb-16">
-                        ${state.user ? `
-                            <button onclick="navigate('challenges')" class="btn-primary text-lg px-8 py-3">Start Hacking</button>
-                        ` : `
-                            <button onclick="showModal('register')" class="btn-primary text-lg px-8 py-3">Join Now</button>
-                            <button onclick="navigate('scoreboard')" class="btn-secondary text-lg px-8 py-3">View Scoreboard</button>
-                        `}
-                    </div>
-
-                    <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                        <div class="card p-6 text-center">
-                            <div class="text-4xl mb-4">🎯</div>
-                            <h3 class="text-xl font-bold mb-2">Challenges</h3>
-                            <p class="text-gray-400">Web, Crypto, Pwn, Reverse, Forensics, and more</p>
-                        </div>
-                        <div class="card p-6 text-center">
-                            <div class="text-4xl mb-4">👥</div>
-                            <h3 class="text-xl font-bold mb-2">Teams</h3>
-                            <p class="text-gray-400">Form teams and compete together</p>
-                        </div>
-                        <div class="card p-6 text-center">
-                            <div class="text-4xl mb-4">🏆</div>
-                            <h3 class="text-xl font-bold mb-2">Achievements</h3>
-                            <p class="text-gray-400">Unlock badges and climb the ranks</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderChallenges() {
-            const categories = [...new Set(state.challenges.map(c => c.category))];
-
-            return `
-                <div>
-                    <div class="flex justify-between items-center mb-8">
-                        <h1 class="font-display text-3xl font-bold">Challenges</h1>
-                        <div class="flex gap-4">
-                            <input type="text" id="challengeSearch" placeholder="Search challenges..." class="input w-64" oninput="filterChallenges()">
-                            <select id="categoryFilter" class="input w-40" onchange="filterChallenges()">
-                                <option value="">All Categories</option>
-                                ${categories.map(c => `<option value="${c}">${c}</option>`).join('')}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div id="challengeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        ${state.challenges.length === 0 ?
-                            '<div class="col-span-3 text-center text-gray-500 py-12">No challenges available yet</div>' :
-                            state.challenges.map(c => renderChallengeCard(c)).join('')
-                        }
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderChallengeCard(challenge) {
-            const difficultyClass = {
-                'easy': 'badge-easy',
-                'medium': 'badge-medium',
-                'hard': 'badge-hard',
-                'insane': 'badge-insane'
-            }[challenge.difficulty] || 'badge-medium';
-
-            const solved = challenge.solved_by_user;
-            const solveCount = challenge.solve_count || 0;
-
-            return `
-                <div class="card p-6 ${solved ? 'border-green-500/50' : ''} hover:border-red-500/50 transition-all cursor-pointer"
-                     onclick="showChallengeModal('${challenge.id}')">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-lg font-bold ${solved ? 'text-green-400' : ''}">${challenge.title}</h3>
-                            <span class="text-sm text-gray-500">${challenge.category}</span>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xl font-bold text-yellow-500">${challenge.points}</div>
-                            <span class="badge ${difficultyClass}">${challenge.difficulty}</span>
-                        </div>
-                    </div>
-                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">${challenge.description || ''}</p>
-                    <div class="flex justify-between items-center text-sm text-gray-500">
-                        <span>${solveCount} solve${solveCount !== 1 ? 's' : ''}</span>
-                        ${solved ? '<span class="text-green-400">✓ Solved</span>' : ''}
-                        ${challenge.first_blood_user ? `<span class="text-red-400">🩸 ${challenge.first_blood_user}</span>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderScoreboard() {
-            return `
-                <div>
-                    <h1 class="font-display text-3xl font-bold mb-8">Scoreboard</h1>
-
-                    <div class="card overflow-hidden">
-                        <table class="w-full">
-                            <thead class="bg-gray-900">
-                                <tr>
-                                    <th class="text-left p-4 w-16">#</th>
-                                    <th class="text-left p-4">User</th>
-                                    <th class="text-left p-4">Team</th>
-                                    <th class="text-right p-4">Solves</th>
-                                    <th class="text-right p-4">Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${state.scoreboard.length === 0 ?
-                                    '<tr><td colspan="5" class="text-center text-gray-500 py-12">No entries yet</td></tr>' :
-                                    state.scoreboard.map((entry, i) => `
-                                        <tr class="border-t border-gray-800 hover:bg-gray-900/50 ${i < 3 ? 'bg-yellow-500/5' : ''}">
-                                            <td class="p-4 font-bold ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : ''}">${i + 1}</td>
-                                            <td class="p-4">
-                                                <span class="font-medium">${entry.username}</span>
-                                            </td>
-                                            <td class="p-4 text-gray-400">${entry.team_name || '-'}</td>
-                                            <td class="p-4 text-right">${entry.solves || 0}</td>
-                                            <td class="p-4 text-right font-bold text-yellow-500">${entry.score}</td>
-                                        </tr>
-                                    `).join('')
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderTeams() {
-            return `
-                <div>
-                    <div class="flex justify-between items-center mb-8">
-                        <h1 class="font-display text-3xl font-bold">Teams</h1>
-                        ${state.user && !state.user.team_id ? `
-                            <button onclick="showModal('createTeam')" class="btn-primary">Create Team</button>
-                        ` : ''}
-                    </div>
-
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        ${state.teams.length === 0 ?
-                            '<div class="col-span-3 text-center text-gray-500 py-12">No teams yet</div>' :
-                            state.teams.map(team => `
-                                <div class="card p-6">
-                                    <h3 class="text-xl font-bold mb-2">${team.name}</h3>
-                                    <p class="text-gray-400 text-sm mb-4">${team.description || 'No description'}</p>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-500">${team.member_count || 0} members</span>
-                                        <span class="text-yellow-500 font-bold">${team.score || 0} pts</span>
-                                    </div>
-                                    ${state.user && !state.user.team_id ? `
-                                        <button onclick="joinTeam('${team.id}')" class="btn-secondary w-full mt-4">Join Team</button>
-                                    ` : ''}
-                                </div>
-                            `).join('')
-                        }
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderAchievements() {
-            const allAchievements = [
-                { id: 'first_blood', name: 'First Blood', description: 'Get first solve on any challenge', icon: '🩸' },
-                { id: 'speed_demon', name: 'Speed Demon', description: 'Solve a challenge within 5 minutes', icon: '⚡' },
-                { id: 'perfectionist', name: 'Perfectionist', description: 'Solve 10 challenges', icon: '🎯' },
-                { id: 'team_player', name: 'Team Player', description: 'Join a team', icon: '👥' },
-                { id: 'night_owl', name: 'Night Owl', description: 'Submit a flag between midnight and 5 AM', icon: '🦉' },
-                { id: 'category_master', name: 'Category Master', description: 'Solve all challenges in one category', icon: '🏅' },
-                { id: 'hint_hater', name: 'Hint Hater', description: 'Solve 5 challenges without hints', icon: '🧠' },
-                { id: 'early_bird', name: 'Early Bird', description: 'First registration in a contest', icon: '🐦' },
-                { id: 'centurion', name: 'Centurion', description: 'Reach 1000 points', icon: '💯' },
-                { id: 'legend', name: 'Legend', description: 'Reach top 3 on the scoreboard', icon: '👑' }
-            ];
-
-            const unlockedIds = state.achievements.map(a => a.achievement_id);
-
-            return `
-                <div>
-                    <h1 class="font-display text-3xl font-bold mb-8">Achievements</h1>
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        ${allAchievements.map(a => `
-                            <div class="achievement ${unlockedIds.includes(a.id) ? 'unlocked' : ''}">
-                                <div class="flex items-center gap-4">
-                                    <div class="text-3xl ${unlockedIds.includes(a.id) ? '' : 'grayscale opacity-50'}">${a.icon}</div>
-                                    <div>
-                                        <h3 class="font-bold ${unlockedIds.includes(a.id) ? 'text-yellow-400' : ''}">${a.name}</h3>
-                                        <p class="text-sm text-gray-400">${a.description}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderProfile() {
-            if (!state.user) return '<div class="text-center py-12">Please login to view profile</div>';
-
-            return `
-                <div>
-                    <h1 class="font-display text-3xl font-bold mb-8">Profile</h1>
-
-                    <div class="grid md:grid-cols-3 gap-6">
-                        <div class="card p-6">
-                            <h2 class="text-2xl font-bold mb-4">${state.user.username}</h2>
-                            <p class="text-gray-400 mb-4">${state.user.email}</p>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-400">Score</span>
-                                    <span class="font-bold text-yellow-500">${state.user.score || 0}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-400">Team</span>
-                                    <span>${state.user.team_name || 'None'}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-400">Role</span>
-                                    <span class="capitalize">${state.user.role || 'user'}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card p-6 md:col-span-2">
-                            <h3 class="text-xl font-bold mb-4">Score Progress</h3>
-                            <canvas id="scoreChart" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Modal System
+        // Modal
         let currentModal = null;
 
         function showModal(type, data = null) {
@@ -563,13 +317,12 @@
 
         function closeModal() {
             currentModal = null;
-            const modal = document.getElementById('modal');
-            if (modal) modal.remove();
+            const m = document.getElementById('modal');
+            if (m) m.remove();
         }
 
         function renderModal() {
             if (!currentModal) return;
-
             let existing = document.getElementById('modal');
             if (existing) existing.remove();
 
@@ -582,98 +335,102 @@
             switch (currentModal.type) {
                 case 'login':
                     content = `
-                        <div class="modal-content p-6">
+                        <div class="modal-content p-8">
                             <h2 class="text-2xl font-bold mb-6">Login</h2>
                             <form id="loginForm" class="space-y-4">
-                                <input type="email" name="email" placeholder="Email" class="input" required>
-                                <input type="password" name="password" placeholder="Password" class="input" required>
-                                <button type="submit" class="btn-primary w-full">Login</button>
+                                <div><label class="block text-sm text-gray-400 mb-2">Email</label><input type="email" name="email" class="input" required></div>
+                                <div><label class="block text-sm text-gray-400 mb-2">Password</label><input type="password" name="password" class="input" required></div>
+                                <button type="submit" class="btn btn-primary w-full">Login</button>
                             </form>
-                            <p class="text-center text-gray-400 mt-4">
-                                Don't have an account?
-                                <a href="#" onclick="showModal('register')" class="text-red-500">Register</a>
-                            </p>
-                        </div>
-                    `;
+                            <p class="text-center text-gray-500 mt-6">Don't have an account? <a href="#" onclick="showModal('register')" class="text-red-500">Register</a></p>
+                        </div>`;
                     break;
 
                 case 'register':
                     content = `
-                        <div class="modal-content p-6">
-                            <h2 class="text-2xl font-bold mb-6">Register</h2>
+                        <div class="modal-content p-8">
+                            <h2 class="text-2xl font-bold mb-6">Create Account</h2>
                             <form id="registerForm" class="space-y-4">
-                                <input type="text" name="username" placeholder="Username" class="input" required>
-                                <input type="email" name="email" placeholder="Email" class="input" required>
-                                <input type="password" name="password" placeholder="Password" class="input" required>
-                                <button type="submit" class="btn-primary w-full">Register</button>
+                                <div><label class="block text-sm text-gray-400 mb-2">Username</label><input type="text" name="username" class="input" required minlength="3" maxlength="30"></div>
+                                <div><label class="block text-sm text-gray-400 mb-2">Email</label><input type="email" name="email" class="input" required></div>
+                                <div><label class="block text-sm text-gray-400 mb-2">Password</label><input type="password" name="password" class="input" required minlength="6"></div>
+                                <button type="submit" class="btn btn-primary w-full">Register</button>
                             </form>
-                            <p class="text-center text-gray-400 mt-4">
-                                Already have an account?
-                                <a href="#" onclick="showModal('login')" class="text-red-500">Login</a>
-                            </p>
-                        </div>
-                    `;
+                            <p class="text-center text-gray-500 mt-6">Already have an account? <a href="#" onclick="showModal('login')" class="text-red-500">Login</a></p>
+                        </div>`;
                     break;
 
                 case 'challenge':
                     const c = currentModal.data;
                     content = `
-                        <div class="modal-content p-6">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h2 class="text-2xl font-bold">${c.title}</h2>
-                                    <span class="text-gray-400">${c.category}</span>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-2xl font-bold text-yellow-500">${c.points} pts</div>
-                                    <button onclick="closeModal()" class="text-gray-400 hover:text-white">✕</button>
+                        <div class="modal-content">
+                            <div class="p-6 border-b border-gray-800">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h2 class="text-2xl font-bold ${c.solved_by_user ? 'text-green-400' : ''}">${c.title}</h2>
+                                        <div class="flex items-center gap-3 mt-2">
+                                            <span class="text-gray-500">${c.category}</span>
+                                            <span class="badge badge-${c.difficulty}">${c.difficulty}</span>
+                                            ${c.solved_by_user ? '<span class="badge badge-solved">Solved</span>' : ''}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-3xl font-bold text-yellow-500">${c.points}</div>
+                                        <div class="text-sm text-gray-500">${c.solve_count || 0} solves</div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="prose prose-invert mb-6">
-                                <p class="text-gray-300">${c.description || 'No description'}</p>
+                            <div class="p-6">
+                                <div class="prose prose-invert mb-6">${c.description_html || c.description || 'No description'}</div>
+                                ${c.url ? `<div class="mb-4"><span class="text-gray-500">URL:</span> <a href="${c.url}" target="_blank" class="text-red-400 hover:underline">${c.url}</a></div>` : ''}
+                                ${c.files ? `<div class="mb-4"><span class="text-gray-500">Files:</span> <a href="${c.files}" target="_blank" class="text-red-400 hover:underline">Download</a></div>` : ''}
+                                ${c.first_blood_user ? `<div class="mb-4 first-blood">🩸 First Blood: ${c.first_blood_user}</div>` : ''}
+                                ${c.hints?.length ? `
+                                    <div class="mb-6">
+                                        <h4 class="font-bold mb-3">Hints</h4>
+                                        <div class="space-y-2">
+                                            ${c.hints.map((h, i) => `
+                                                <div class="hint-btn" onclick="revealHint('${h.id}', ${i})">
+                                                    <span id="hint-${i}">Hint ${i + 1} (Cost: ${h.cost} pts)</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${!c.solved_by_user && state.user ? `
+                                    <form id="flagForm" class="flex gap-3">
+                                        <input type="text" name="flag" placeholder="WOW{...}" class="input flex-1" required>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </form>
+                                ` : !state.user ? '<p class="text-gray-500">Login to submit flags</p>' : '<div class="text-center text-green-400 py-4 bg-green-500/10 rounded-lg">✓ You solved this challenge!</div>'}
                             </div>
-
-                            ${c.files ? `
-                                <div class="mb-4">
-                                    <h4 class="font-bold mb-2">Files</h4>
-                                    <a href="${c.files}" class="text-red-400 hover:underline" target="_blank">Download</a>
-                                </div>
-                            ` : ''}
-
-                            ${c.url ? `
-                                <div class="mb-4">
-                                    <h4 class="font-bold mb-2">Challenge URL</h4>
-                                    <a href="${c.url}" class="text-red-400 hover:underline" target="_blank">${c.url}</a>
-                                </div>
-                            ` : ''}
-
-                            ${!c.solved_by_user ? `
-                                <form id="flagForm" class="flex gap-2">
-                                    <input type="text" name="flag" placeholder="WOW{...}" class="input flex-1" required>
-                                    <button type="submit" class="btn-primary">Submit</button>
-                                </form>
-                            ` : `
-                                <div class="bg-green-500/20 text-green-400 p-4 rounded-lg text-center">
-                                    ✓ Challenge Solved!
-                                </div>
-                            `}
-                        </div>
-                    `;
+                        </div>`;
                     break;
 
                 case 'createTeam':
                     content = `
-                        <div class="modal-content p-6">
+                        <div class="modal-content p-8">
                             <h2 class="text-2xl font-bold mb-6">Create Team</h2>
                             <form id="createTeamForm" class="space-y-4">
-                                <input type="text" name="name" placeholder="Team Name" class="input" required>
-                                <textarea name="description" placeholder="Team Description" class="input" rows="3"></textarea>
-                                <input type="password" name="password" placeholder="Team Password (optional)" class="input">
-                                <button type="submit" class="btn-primary w-full">Create Team</button>
+                                <div><label class="block text-sm text-gray-400 mb-2">Team Name</label><input type="text" name="name" class="input" required></div>
+                                <div><label class="block text-sm text-gray-400 mb-2">Description</label><textarea name="description" class="input" rows="3"></textarea></div>
+                                <div><label class="block text-sm text-gray-400 mb-2">Password (optional)</label><input type="password" name="password" class="input" placeholder="Leave empty for open team"></div>
+                                <button type="submit" class="btn btn-primary w-full">Create Team</button>
                             </form>
-                        </div>
-                    `;
+                        </div>`;
+                    break;
+
+                case 'joinTeam':
+                    const team = currentModal.data;
+                    content = `
+                        <div class="modal-content p-8">
+                            <h2 class="text-2xl font-bold mb-6">Join ${team.name}</h2>
+                            <form id="joinTeamForm" class="space-y-4">
+                                <p class="text-gray-400">${team.description || 'No description'}</p>
+                                <div><label class="block text-sm text-gray-400 mb-2">Team Password</label><input type="password" name="password" class="input" placeholder="Leave empty if no password"></div>
+                                <button type="submit" class="btn btn-primary w-full">Join Team</button>
+                            </form>
+                        </div>`;
                     break;
             }
 
@@ -682,145 +439,336 @@
             attachModalListeners();
         }
 
+        async function revealHint(hintId, index) {
+            const content = await unlockHint(hintId);
+            if (content) {
+                document.getElementById(`hint-${index}`).innerHTML = content;
+            }
+        }
+
         function attachModalListeners() {
             const loginForm = document.getElementById('loginForm');
-            if (loginForm) {
-                loginForm.onsubmit = async (e) => {
-                    e.preventDefault();
-                    const form = new FormData(loginForm);
-                    try {
-                        await login(form.get('email'), form.get('password'));
-                        closeModal();
-                    } catch (err) {
-                        showToast(err.message, 'error');
-                    }
-                };
-            }
+            if (loginForm) loginForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(loginForm);
+                try { await login(f.get('email'), f.get('password')); closeModal(); } catch (err) { toast(err.message, 'error'); }
+            };
 
             const registerForm = document.getElementById('registerForm');
-            if (registerForm) {
-                registerForm.onsubmit = async (e) => {
-                    e.preventDefault();
-                    const form = new FormData(registerForm);
-                    try {
-                        await register(form.get('username'), form.get('email'), form.get('password'));
-                        closeModal();
-                    } catch (err) {
-                        showToast(err.message, 'error');
-                    }
-                };
-            }
+            if (registerForm) registerForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(registerForm);
+                try { await register(f.get('username'), f.get('email'), f.get('password')); closeModal(); } catch (err) { toast(err.message, 'error'); }
+            };
 
             const flagForm = document.getElementById('flagForm');
-            if (flagForm) {
-                flagForm.onsubmit = async (e) => {
-                    e.preventDefault();
-                    const form = new FormData(flagForm);
-                    await submitFlag(currentModal.data.id, form.get('flag'));
-                    closeModal();
-                };
-            }
+            if (flagForm) flagForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(flagForm);
+                await submitFlag(currentModal.data.id, f.get('flag'));
+            };
 
             const createTeamForm = document.getElementById('createTeamForm');
-            if (createTeamForm) {
-                createTeamForm.onsubmit = async (e) => {
-                    e.preventDefault();
-                    const form = new FormData(createTeamForm);
-                    try {
-                        await api('/api/teams', {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                name: form.get('name'),
-                                description: form.get('description'),
-                                password: form.get('password')
-                            })
-                        });
-                        showToast('Team created!');
-                        await loadUser();
-                        await loadTeams();
-                        closeModal();
-                        render();
-                    } catch (err) {
-                        showToast(err.message, 'error');
-                    }
-                };
+            if (createTeamForm) createTeamForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(createTeamForm);
+                await createTeam(f.get('name'), f.get('description'), f.get('password'));
+            };
+
+            const joinTeamForm = document.getElementById('joinTeamForm');
+            if (joinTeamForm) joinTeamForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(joinTeamForm);
+                await joinTeam(currentModal.data.id, f.get('password'));
+            };
+        }
+
+        // Render
+        function render() {
+            document.getElementById('app').innerHTML = `
+                ${renderNav()}
+                <main class="container mx-auto px-4 py-8 max-w-7xl">${renderPage()}</main>
+            `;
+        }
+
+        function renderNav() {
+            return `
+                <nav class="border-b border-gray-800 bg-black/80 backdrop-blur sticky top-0 z-50">
+                    <div class="container mx-auto px-4 max-w-7xl">
+                        <div class="flex items-center justify-between h-16">
+                            <div class="flex items-center gap-8">
+                                <a href="#" onclick="navigate('home')" class="font-display text-2xl font-bold text-red-500">CTF WAR</a>
+                                <div class="hidden md:flex items-center gap-1">
+                                    <a href="#" onclick="navigate('challenges')" class="nav-link ${state.page === 'challenges' ? 'active' : ''}">Challenges</a>
+                                    <a href="#" onclick="navigate('scoreboard')" class="nav-link ${state.page === 'scoreboard' ? 'active' : ''}">Scoreboard</a>
+                                    <a href="#" onclick="navigate('teams')" class="nav-link ${state.page === 'teams' ? 'active' : ''}">Teams</a>
+                                    ${state.user ? `<a href="#" onclick="navigate('achievements')" class="nav-link ${state.page === 'achievements' ? 'active' : ''}">Achievements</a>` : ''}
+                                    <a href="#" onclick="navigate('writeups')" class="nav-link ${state.page === 'writeups' ? 'active' : ''}">Writeups</a>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                ${state.user ? `
+                                    <span class="text-yellow-500 font-bold">${state.user.score || 0} pts</span>
+                                    <a href="#" onclick="navigate('profile')" class="nav-link">${state.user.username}</a>
+                                    ${state.user.role === 'admin' ? `<a href="#" onclick="navigate('admin')" class="nav-link text-red-400">Admin</a>` : ''}
+                                    <button onclick="logout()" class="btn btn-secondary text-sm">Logout</button>
+                                ` : `
+                                    <button onclick="showModal('login')" class="btn btn-secondary">Login</button>
+                                    <button onclick="showModal('register')" class="btn btn-primary">Register</button>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                </nav>`;
+        }
+
+        function renderPage() {
+            switch (state.page) {
+                case 'home': return renderHome();
+                case 'challenges': return renderChallenges();
+                case 'scoreboard': return renderScoreboard();
+                case 'teams': return renderTeams();
+                case 'achievements': return renderAchievements();
+                case 'writeups': return renderWriteups();
+                case 'profile': return renderProfile();
+                case 'admin': return renderAdmin();
+                default: return renderHome();
             }
         }
 
-        function showChallengeModal(id) {
-            const challenge = state.challenges.find(c => c.id === id);
-            if (challenge) showModal('challenge', challenge);
+        function renderHome() {
+            return `
+                <div class="text-center py-16">
+                    <h1 class="font-display text-6xl md:text-7xl font-black mb-6">
+                        <span class="text-white">CTF</span><span class="text-red-500">WAR</span>
+                    </h1>
+                    <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+                        The ultimate Capture The Flag competition platform. Test your hacking skills, solve challenges, compete with teams worldwide.
+                    </p>
+                    <div class="flex justify-center gap-4 mb-16">
+                        ${state.user ? `
+                            <button onclick="navigate('challenges')" class="btn btn-primary text-lg px-8 py-4">Start Hacking</button>
+                            <button onclick="navigate('scoreboard')" class="btn btn-secondary text-lg px-8 py-4">Scoreboard</button>
+                        ` : `
+                            <button onclick="showModal('register')" class="btn btn-primary text-lg px-8 py-4">Join Now</button>
+                            <button onclick="navigate('scoreboard')" class="btn btn-secondary text-lg px-8 py-4">View Scoreboard</button>
+                        `}
+                    </div>
+                    <div class="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                        <div class="card stats-card"><div class="stats-number">${state.stats?.challenges || 0}</div><div class="stats-label">Challenges</div></div>
+                        <div class="card stats-card"><div class="stats-number">${state.stats?.users || 0}</div><div class="stats-label">Players</div></div>
+                        <div class="card stats-card"><div class="stats-number">${state.stats?.teams || 0}</div><div class="stats-label">Teams</div></div>
+                        <div class="card stats-card"><div class="stats-number">${state.stats?.solves || 0}</div><div class="stats-label">Solves</div></div>
+                    </div>
+                </div>`;
         }
 
-        async function joinTeam(teamId) {
-            const password = prompt('Enter team password (leave empty if none):');
-            try {
-                await api(`/api/teams/${teamId}/join`, {
-                    method: 'POST',
-                    body: JSON.stringify({ password })
-                });
-                showToast('Joined team!');
-                await loadUser();
-                render();
-            } catch (err) {
-                showToast(err.message, 'error');
-            }
+        function renderChallenges() {
+            const categories = [...new Set(state.challenges.map(c => c.category))];
+            let filtered = state.challenges;
+            if (state.categoryFilter) filtered = filtered.filter(c => c.category === state.categoryFilter);
+            if (state.searchQuery) filtered = filtered.filter(c => c.title.toLowerCase().includes(state.searchQuery.toLowerCase()));
+
+            return `
+                <div>
+                    ${state.announcements.length ? `
+                        <div class="card p-4 mb-6 border-red-500/30">
+                            <h3 class="font-bold text-red-400 mb-2">📢 Announcements</h3>
+                            ${state.announcements.slice(0, 2).map(a => `<div class="announcement"><strong>${a.title}</strong></div>`).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                        <h1 class="font-display text-3xl font-bold">Challenges</h1>
+                        <input type="text" placeholder="Search..." class="input w-64" oninput="state.searchQuery = this.value; render();">
+                    </div>
+                    <div class="category-filter">
+                        <span class="category-tag ${!state.categoryFilter ? 'active' : ''}" onclick="state.categoryFilter = ''; render();">All</span>
+                        ${categories.map(c => `<span class="category-tag ${state.categoryFilter === c ? 'active' : ''}" onclick="state.categoryFilter = '${c}'; render();">${c}</span>`).join('')}
+                    </div>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${filtered.length === 0 ? '<div class="col-span-3 text-center text-gray-500 py-12">No challenges available</div>' :
+                            filtered.map(c => `
+                                <div class="card challenge-card p-5 ${c.solved_by_user ? 'solved' : ''}" onclick="showModal('challenge', ${JSON.stringify(c).replace(/"/g, '&quot;')})">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h3 class="font-bold ${c.solved_by_user ? 'text-green-400' : ''}">${c.title}</h3>
+                                            <span class="text-sm text-gray-500">${c.category}</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-xl font-bold text-yellow-500">${c.points}</div>
+                                            <span class="badge badge-${c.difficulty}">${c.difficulty}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm text-gray-500 mt-4">
+                                        <span>${c.solve_count || 0} solves</span>
+                                        ${c.solved_by_user ? '<span class="text-green-400">✓</span>' : ''}
+                                        ${c.first_blood_user ? `<span class="first-blood">🩸 ${c.first_blood_user}</span>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>`;
         }
 
-        function filterChallenges() {
-            const search = document.getElementById('challengeSearch')?.value.toLowerCase() || '';
-            const category = document.getElementById('categoryFilter')?.value || '';
-
-            const filtered = state.challenges.filter(c => {
-                const matchesSearch = c.title.toLowerCase().includes(search) ||
-                                     (c.description || '').toLowerCase().includes(search);
-                const matchesCategory = !category || c.category === category;
-                return matchesSearch && matchesCategory;
-            });
-
-            const grid = document.getElementById('challengeGrid');
-            if (grid) {
-                grid.innerHTML = filtered.length === 0 ?
-                    '<div class="col-span-3 text-center text-gray-500 py-12">No challenges match your search</div>' :
-                    filtered.map(c => renderChallengeCard(c)).join('');
-            }
-        }
-
-        function attachEventListeners() {
-            // Profile page chart
-            if (state.currentPage === 'profile' && state.user) {
-                setTimeout(() => {
-                    const ctx = document.getElementById('scoreChart');
-                    if (ctx) {
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Today'],
-                                datasets: [{
-                                    label: 'Score',
-                                    data: [0, 100, 250, 400, 650, state.user.score || 0],
-                                    borderColor: '#dc2626',
-                                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                                    fill: true,
-                                    tension: 0.4
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: { legend: { display: false } },
-                                scales: {
-                                    y: { beginAtZero: true, grid: { color: '#1f1f1f' } },
-                                    x: { grid: { color: '#1f1f1f' } }
+        function renderScoreboard() {
+            return `
+                <div>
+                    <h1 class="font-display text-3xl font-bold mb-8">Scoreboard</h1>
+                    <div class="card overflow-hidden">
+                        <table class="table">
+                            <thead><tr><th style="width:60px">#</th><th>Player</th><th>Team</th><th style="text-align:right">Solves</th><th style="text-align:right">Score</th></tr></thead>
+                            <tbody>
+                                ${state.scoreboard.length === 0 ? '<tr><td colspan="5" class="text-center text-gray-500 py-12">No entries yet</td></tr>' :
+                                    state.scoreboard.map((e, i) => `
+                                        <tr class="${i < 3 ? 'bg-yellow-500/5' : ''}">
+                                            <td class="font-bold ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : ''}">${e.rank}</td>
+                                            <td><span class="font-medium">${e.username}</span>${e.affiliation ? ` <span class="text-gray-500 text-sm">(${e.affiliation})</span>` : ''}</td>
+                                            <td class="text-gray-400">${e.team_name || '-'}</td>
+                                            <td style="text-align:right">${e.solves}</td>
+                                            <td style="text-align:right" class="font-bold text-yellow-500">${e.score}</td>
+                                        </tr>
+                                    `).join('')
                                 }
-                            }
-                        });
-                    }
-                }, 100);
-            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
         }
 
-        // Initialize
+        function renderTeams() {
+            return `
+                <div>
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="font-display text-3xl font-bold">Teams</h1>
+                        ${state.user && !state.user.team_id ? `<button onclick="showModal('createTeam')" class="btn btn-primary">Create Team</button>` : ''}
+                        ${state.user?.team_id ? `<button onclick="leaveTeam()" class="btn btn-secondary">Leave Team</button>` : ''}
+                    </div>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${state.teams.length === 0 ? '<div class="col-span-3 text-center text-gray-500 py-12">No teams yet</div>' :
+                            state.teams.map(t => `
+                                <div class="card p-6">
+                                    <h3 class="text-xl font-bold mb-2">${t.name}</h3>
+                                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">${t.description || 'No description'}</p>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-gray-500">${t.member_count || 0} / 5 members</span>
+                                        <span class="text-yellow-500 font-bold">${t.score || 0} pts</span>
+                                    </div>
+                                    ${state.user && !state.user.team_id ? `<button onclick="showModal('joinTeam', ${JSON.stringify(t).replace(/"/g, '&quot;')})" class="btn btn-secondary w-full">Join</button>` : ''}
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>`;
+        }
+
+        function renderAchievements() {
+            return `
+                <div>
+                    <h1 class="font-display text-3xl font-bold mb-8">Achievements</h1>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${state.achievements.map(a => `
+                            <div class="card p-4 ${a.unlocked ? 'border-yellow-500/50' : 'opacity-50'}">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-3xl">${a.icon}</div>
+                                    <div>
+                                        <h3 class="font-bold ${a.unlocked ? 'text-yellow-400' : ''}">${a.name}</h3>
+                                        <p class="text-sm text-gray-400">${a.description}</p>
+                                        <span class="text-xs text-gray-500">+${a.points} pts</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function renderWriteups() {
+            return `
+                <div>
+                    <h1 class="font-display text-3xl font-bold mb-8">Writeups</h1>
+                    <div class="space-y-4">
+                        ${state.writeups.length === 0 ? '<div class="text-center text-gray-500 py-12">No writeups yet</div>' :
+                            state.writeups.map(w => `
+                                <div class="card p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="font-bold text-lg">${w.title}</h3>
+                                            <p class="text-sm text-gray-500">by ${w.author} • ${w.challenge} (${w.category})</p>
+                                        </div>
+                                        <span class="text-gray-400">❤️ ${w.likes}</span>
+                                    </div>
+                                    <p class="text-gray-400 mt-3">${w.content_preview}</p>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>`;
+        }
+
+        function renderProfile() {
+            if (!state.user) return '<div class="text-center py-12">Please login</div>';
+            return `
+                <div>
+                    <h1 class="font-display text-3xl font-bold mb-8">Profile</h1>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="card p-6">
+                            <h2 class="text-2xl font-bold mb-4">${state.user.username}</h2>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between"><span class="text-gray-400">Score</span><span class="font-bold text-yellow-500">${state.user.score || 0}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Solves</span><span>${state.user.solve_count || 0}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Team</span><span>${state.user.teams?.name || 'None'}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Role</span><span class="capitalize">${state.user.role}</span></div>
+                            </div>
+                        </div>
+                        <div class="card p-6 md:col-span-2">
+                            <h3 class="font-bold mb-4">Recent Achievements</h3>
+                            <div class="flex flex-wrap gap-2">
+                                ${state.achievements.filter(a => a.unlocked).slice(0, 6).map(a => `
+                                    <span class="badge bg-yellow-500/20 text-yellow-400">${a.icon} ${a.name}</span>
+                                `).join('') || '<span class="text-gray-500">No achievements yet</span>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderAdmin() {
+            if (!state.user || state.user.role !== 'admin') return '<div class="text-center py-12">Admin access required</div>';
+            return `
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="admin-nav">
+                        <h3 class="font-bold mb-4 text-gray-400">Admin Panel</h3>
+                        <a href="#" class="active">Dashboard</a>
+                        <a href="#">Users</a>
+                        <a href="#">Challenges</a>
+                        <a href="#">Teams</a>
+                        <a href="#">Config</a>
+                    </div>
+                    <div class="md:col-span-3">
+                        <h1 class="font-display text-3xl font-bold mb-8">Admin Dashboard</h1>
+                        <div class="grid md:grid-cols-4 gap-4 mb-8">
+                            <div class="card stats-card"><div class="stats-number">${state.stats?.users || 0}</div><div class="stats-label">Users</div></div>
+                            <div class="card stats-card"><div class="stats-number">${state.stats?.teams || 0}</div><div class="stats-label">Teams</div></div>
+                            <div class="card stats-card"><div class="stats-number">${state.stats?.challenges || 0}</div><div class="stats-label">Challenges</div></div>
+                            <div class="card stats-card"><div class="stats-number">${state.stats?.solves || 0}</div><div class="stats-label">Solves</div></div>
+                        </div>
+                        <div class="card p-6">
+                            <h3 class="font-bold mb-4">Quick Actions</h3>
+                            <div class="flex gap-4">
+                                <button class="btn btn-primary">Add Challenge</button>
+                                <button class="btn btn-secondary">Post Announcement</button>
+                                <button class="btn btn-secondary">Export Data</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // Init
         async function init() {
+            await loadConfig();
+            await loadStats();
             await loadUser();
             render();
         }
