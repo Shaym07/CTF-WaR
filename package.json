@@ -1,7 +1,7 @@
 {
   "name": "ctf-war-api",
-  "version": "2.0.0",
-  "description": "CTF War Platform API",
+  "version": "3.0.0",
+  "description": "CTF War Platform - Ultimate CTF Competition System",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -15,6 +15,15 @@
     "cors": "^2.8.5",
     "@supabase/supabase-js": "^2.39.0",
     "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0",
+    "node-cache": "^5.1.2",
+    "marked": "^11.1.0",
+    "sanitize-html": "^2.11.0",
+    "ws": "^8.16.0"
   }
 }

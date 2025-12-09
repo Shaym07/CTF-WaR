@@ -2,8 +2,10 @@ services:
   - type: web
     name: ctf-war-api
     runtime: node
+    plan: starter
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: SUPABASE_URL
         value: https://vfhilobaycsxwbjojgjc.supabase.co
@@ -13,5 +15,7 @@ services:
         value: c073386cb88b7d2fc6a4ad3ea0ab5718
       - key: FLAG_PREFIXES
         value: WOW
+      - key: PLATFORM_NAME
+        value: CTF War
       - key: NODE_ENV
         value: production
