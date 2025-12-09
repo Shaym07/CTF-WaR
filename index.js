@@ -333,8 +333,8 @@ app.get('/challenges', optionalAuth, async (req, res) => {
     const access = checkCTFAccess();
     if (!access.allowed && req.user?.role !== 'admin') return res.status(403).json({ error: access.reason });
 
-    let query = supabase.from('challenges').select('id, title, description, category, points, difficulty, files, url, max_attempts, type, state, scoring_type, initial_points, minimum_points, decay, prerequisites, tags, created_at');
-    if (req.user?.role !== 'admin') query = query.eq('state', 'visible');
+    let query = supabase.from('challenges').select('*');
+    if (req.user?.role !== 'admin') query = query.or('state.eq.visible,state.is.null');
     const { data: challenges, error } = await query.order('category').order('points');
     if (error) throw error;
 
@@ -389,7 +389,7 @@ app.get('/challenges', optionalAuth, async (req, res) => {
 
 app.get('/challenges/categories', async (req, res) => {
   try {
-    const { data } = await supabase.from('challenges').select('category').eq('state', 'visible');
+    const { data } = await supabase.from('challenges').select('category').or('state.eq.visible,state.is.null');
     const categories = [...new Set(data?.map(c => c.category) || [])];
     res.json({ categories });
   } catch (err) {
@@ -818,7 +818,7 @@ app.get('/stats', async (req, res) => {
     const [users, teams, challenges, solves] = await Promise.all([
       supabase.from('users').select('id', { count: 'exact' }),
       supabase.from('teams').select('id', { count: 'exact' }),
-      supabase.from('challenges').select('id', { count: 'exact' }).eq('state', 'visible'),
+      supabase.from('challenges').select('id', { count: 'exact' }).or('state.eq.visible,state.is.null'),
       supabase.from('solves').select('id', { count: 'exact' })
     ]);
     res.json({ users: users.count || 0, teams: teams.count || 0, challenges: challenges.count || 0, solves: solves.count || 0 });
