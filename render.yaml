@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: ctf-war-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SUPABASE_URL
+        value: https://vfhilobaycsxwbjojgjc.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        value: c073386cb88b7d2fc6a4ad3ea0ab5718
+      - key: FLAG_PREFIXES
+        value: WOW
+      - key: NODE_ENV
+        value: production
