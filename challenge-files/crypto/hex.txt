@@ -1,0 +1,8 @@
+Hex to ASCII Challenge
+======================
+
+Hex string: 574f577b6833785f31735f6a7573745f336e633064316e677d
+
+Convert to ASCII to get the flag!
+
+Python: bytes.fromhex('574f577b6833785f31735f6a7573745f336e633064316e677d').decode()

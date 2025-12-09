@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SQL Injection Challenge</title>
+    <style>
+        body { font-family: Arial; max-width: 400px; margin: 50px auto; }
+        input { width: 100%; padding: 10px; margin: 5px 0; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Admin Login</h2>
+    <form>
+        <input type="text" placeholder="Username" id="user">
+        <input type="password" placeholder="Password" id="pass">
+        <button type="submit">Login</button>
+    </form>
+
+    <h3>Challenge Info:</h3>
+    <p>Backend query:</p>
+    <code>SELECT * FROM users WHERE username='[INPUT]' AND password='[INPUT]'</code>
+
+    <h3>Payloads to try:</h3>
+    <ul>
+        <li><code>admin' --</code></li>
+        <li><code>' OR '1'='1</code></li>
+        <li><code>admin' OR 1=1--</code></li>
+    </ul>
+
+    <p><strong>Flag:</strong> WOW{sql1_1s_st1ll_4l1v3}</p>
+</body>
+</html>

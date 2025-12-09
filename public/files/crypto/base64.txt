@@ -1,0 +1,8 @@
+Base64 Challenge
+================
+
+Encoded string: V09Xe2I0czM2NF8xc19uMHRfM25jcnlwdDEwbn0=
+
+Decode it to get the flag!
+
+Command: echo "V09Xe2I0czM2NF8xc19uMHRfM25jcnlwdDEwbn0=" | base64 -d

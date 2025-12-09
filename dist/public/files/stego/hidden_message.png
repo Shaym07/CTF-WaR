@@ -1,0 +1,7 @@
+This is a placeholder for the steganography challenge.
+In a real CTF, this would be a PNG image with data hidden in LSB.
+
+Flag location: Hidden in least significant bits
+Tool to use: zsteg, stegsolve, or Python PIL
+
+The flag is: WOW{lsb_st3g4n0gr4phy}

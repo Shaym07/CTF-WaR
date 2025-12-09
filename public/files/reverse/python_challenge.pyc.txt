@@ -1,0 +1,26 @@
+Python Bytecode Challenge
+=========================
+
+This represents a compiled Python file (.pyc)
+
+Original source code:
+```python
+def check_flag(user_input):
+    secret = [87, 79, 87, 123, 112, 121, 116, 104, 48, 110, 95, 98, 121, 116, 51, 99, 48, 100, 51, 125]
+    flag = ''.join(chr(c) for c in secret)
+    return user_input == flag
+
+if __name__ == "__main__":
+    user = input("Enter the flag: ")
+    if check_flag(user):
+        print("Correct!")
+    else:
+        print("Wrong!")
+```
+
+Decompile tools:
+- uncompyle6: pip install uncompyle6 && uncompyle6 file.pyc
+- pycdc: https://github.com/zrax/pycdc
+- decompyle3: pip install decompyle3
+
+Flag: WOW{pyth0n_byt3c0d3}

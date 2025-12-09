@@ -1,0 +1,23 @@
+EXIF Metadata Challenge
+=======================
+
+This represents an image with hidden EXIF data.
+
+In a real challenge, use:
+- exiftool photo.jpg
+- exiftool -all photo.jpg
+
+Sample EXIF output:
+ExifTool Version Number         : 12.40
+File Name                       : photo.jpg
+File Size                       : 1.2 MB
+MIME Type                       : image/jpeg
+Make                            : Canon
+Camera Model Name               : Canon EOS 5D
+GPS Latitude                    : 40.7128 N
+GPS Longitude                   : 74.0060 W
+Artist                          : CTF Player
+Comment                         : WOW{3x1f_m3t4d4t4}
+User Comment                    : The flag is in the comment!
+
+Flag: WOW{3x1f_m3t4d4t4}

@@ -1,0 +1,23 @@
+PCAP Analysis Challenge
+=======================
+
+In a real challenge, this would be a .pcap file.
+
+The capture contains HTTP traffic with the flag transmitted in a POST request.
+
+Analysis steps:
+1. Open in Wireshark
+2. Filter: http.request.method == "POST"
+3. Follow TCP stream
+4. Look for form data or cookies
+
+Example Wireshark filters:
+- http contains "flag"
+- http.request.uri contains "login"
+- tcp.port == 80
+
+The flag was sent in a POST to /api/submit:
+POST /api/submit HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+flag=WOW{pc4p_4n4lys1s}

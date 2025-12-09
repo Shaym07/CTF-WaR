@@ -64,14 +64,6 @@
         .admin-nav { background: #0d0d0d; padding: 16px; border-radius: 8px; }
         .admin-nav a { display: block; padding: 10px 16px; color: #888; text-decoration: none; border-radius: 6px; margin-bottom: 4px; }
         .admin-nav a:hover, .admin-nav a.active { background: #1a1a1a; color: white; }
-        .challenge-description pre { background: #1a1a1a; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; }
-        .challenge-description code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-        .challenge-description pre code { background: none; padding: 0; }
-        .challenge-description p { margin: 8px 0; }
-        .challenge-description ul, .challenge-description ol { margin: 8px 0; padding-left: 24px; }
-        .challenge-description a { color: #ef4444; text-decoration: underline; }
-        .challenge-description a:hover { color: #f87171; }
-        .challenge-description h2, .challenge-description h3, .challenge-description h4 { margin-top: 16px; margin-bottom: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -120,11 +112,6 @@
             t.textContent = message;
             document.body.appendChild(t);
             setTimeout(() => t.remove(), 4000);
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
         // WebSocket
@@ -351,7 +338,7 @@
                         <div class="modal-content p-8">
                             <h2 class="text-2xl font-bold mb-6">Login</h2>
                             <form id="loginForm" class="space-y-4">
-                                <div><label class="block text-sm text-gray-400 mb-2">Email or Username</label><input type="text" name="email" class="input" required placeholder="Enter email or username"></div>
+                                <div><label class="block text-sm text-gray-400 mb-2">Email</label><input type="email" name="email" class="input" required></div>
                                 <div><label class="block text-sm text-gray-400 mb-2">Password</label><input type="password" name="password" class="input" required></div>
                                 <button type="submit" class="btn btn-primary w-full">Login</button>
                             </form>
@@ -380,10 +367,10 @@
                             <div class="p-6 border-b border-gray-800">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <h2 class="text-2xl font-bold ${c.solved_by_user ? 'text-green-400' : ''}">${escapeHtml(c.title)}</h2>
+                                        <h2 class="text-2xl font-bold ${c.solved_by_user ? 'text-green-400' : ''}">${c.title}</h2>
                                         <div class="flex items-center gap-3 mt-2">
-                                            <span class="text-gray-500">${escapeHtml(c.category)}</span>
-                                            <span class="badge badge-${c.difficulty}">${escapeHtml(c.difficulty)}</span>
+                                            <span class="text-gray-500">${c.category}</span>
+                                            <span class="badge badge-${c.difficulty}">${c.difficulty}</span>
                                             ${c.solved_by_user ? '<span class="badge badge-solved">Solved</span>' : ''}
                                         </div>
                                     </div>
@@ -394,10 +381,10 @@
                                 </div>
                             </div>
                             <div class="p-6">
-                                <div class="prose prose-invert mb-6 challenge-description">${c.description_html || escapeHtml(c.description) || 'No description'}</div>
-                                ${c.url ? `<div class="mb-4"><span class="text-gray-500">URL:</span> <a href="${escapeHtml(c.url)}" target="_blank" class="text-red-400 hover:underline">${escapeHtml(c.url)}</a></div>` : ''}
-                                ${c.files ? `<div class="mb-4"><span class="text-gray-500">Files:</span> <a href="${escapeHtml(c.files)}" target="_blank" class="text-red-400 hover:underline">Download</a></div>` : ''}
-                                ${c.first_blood_user ? `<div class="mb-4 first-blood">🩸 First Blood: ${escapeHtml(c.first_blood_user)}</div>` : ''}
+                                <div class="prose prose-invert mb-6">${c.description_html || c.description || 'No description'}</div>
+                                ${c.url ? `<div class="mb-4"><span class="text-gray-500">URL:</span> <a href="${c.url}" target="_blank" class="text-red-400 hover:underline">${c.url}</a></div>` : ''}
+                                ${c.files ? `<div class="mb-4"><span class="text-gray-500">Files:</span> <a href="${c.files}" target="_blank" class="text-red-400 hover:underline">Download</a></div>` : ''}
+                                ${c.first_blood_user ? `<div class="mb-4 first-blood">🩸 First Blood: ${c.first_blood_user}</div>` : ''}
                                 ${c.hints?.length ? `
                                     <div class="mb-6">
                                         <h4 class="font-bold mb-3">Hints</h4>
@@ -437,9 +424,9 @@
                     const team = currentModal.data;
                     content = `
                         <div class="modal-content p-8">
-                            <h2 class="text-2xl font-bold mb-6">Join ${escapeHtml(team.name)}</h2>
+                            <h2 class="text-2xl font-bold mb-6">Join ${team.name}</h2>
                             <form id="joinTeamForm" class="space-y-4">
-                                <p class="text-gray-400">${escapeHtml(team.description) || 'No description'}</p>
+                                <p class="text-gray-400">${team.description || 'No description'}</p>
                                 <div><label class="block text-sm text-gray-400 mb-2">Team Password</label><input type="password" name="password" class="input" placeholder="Leave empty if no password"></div>
                                 <button type="submit" class="btn btn-primary w-full">Join Team</button>
                             </form>
@@ -522,7 +509,7 @@
                             <div class="flex items-center gap-4">
                                 ${state.user ? `
                                     <span class="text-yellow-500 font-bold">${state.user.score || 0} pts</span>
-                                    <a href="#" onclick="navigate('profile')" class="nav-link">${escapeHtml(state.user.username)}</a>
+                                    <a href="#" onclick="navigate('profile')" class="nav-link">${state.user.username}</a>
                                     ${state.user.role === 'admin' ? `<a href="#" onclick="navigate('admin')" class="nav-link text-red-400">Admin</a>` : ''}
                                     <button onclick="logout()" class="btn btn-secondary text-sm">Logout</button>
                                 ` : `
@@ -576,11 +563,6 @@
                 </div>`;
         }
 
-        function openChallenge(id) {
-            const challenge = state.challenges.find(c => c.id === id);
-            if (challenge) showModal('challenge', challenge);
-        }
-
         function renderChallenges() {
             const categories = [...new Set(state.challenges.map(c => c.category))];
             let filtered = state.challenges;
@@ -592,7 +574,7 @@
                     ${state.announcements.length ? `
                         <div class="card p-4 mb-6 border-red-500/30">
                             <h3 class="font-bold text-red-400 mb-2">📢 Announcements</h3>
-                            ${state.announcements.slice(0, 2).map(a => `<div class="announcement"><strong>${escapeHtml(a.title)}</strong></div>`).join('')}
+                            ${state.announcements.slice(0, 2).map(a => `<div class="announcement"><strong>${a.title}</strong></div>`).join('')}
                         </div>
                     ` : ''}
                     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -606,10 +588,10 @@
                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         ${filtered.length === 0 ? '<div class="col-span-3 text-center text-gray-500 py-12">No challenges available</div>' :
                             filtered.map(c => `
-                                <div class="card challenge-card p-5 ${c.solved_by_user ? 'solved' : ''}" onclick="openChallenge('${c.id}')">
+                                <div class="card challenge-card p-5 ${c.solved_by_user ? 'solved' : ''}" onclick="showModal('challenge', ${JSON.stringify(c).replace(/"/g, '&quot;')})">
                                     <div class="flex justify-between items-start mb-3">
                                         <div>
-                                            <h3 class="font-bold ${c.solved_by_user ? 'text-green-400' : ''}">${escapeHtml(c.title)}</h3>
+                                            <h3 class="font-bold ${c.solved_by_user ? 'text-green-400' : ''}">${c.title}</h3>
                                             <span class="text-sm text-gray-500">${c.category}</span>
                                         </div>
                                         <div class="text-right">
@@ -620,7 +602,7 @@
                                     <div class="flex justify-between items-center text-sm text-gray-500 mt-4">
                                         <span>${c.solve_count || 0} solves</span>
                                         ${c.solved_by_user ? '<span class="text-green-400">✓</span>' : ''}
-                                        ${c.first_blood_user ? `<span class="first-blood">🩸 ${escapeHtml(c.first_blood_user)}</span>` : ''}
+                                        ${c.first_blood_user ? `<span class="first-blood">🩸 ${c.first_blood_user}</span>` : ''}
                                     </div>
                                 </div>
                             `).join('')
@@ -641,8 +623,8 @@
                                     state.scoreboard.map((e, i) => `
                                         <tr class="${i < 3 ? 'bg-yellow-500/5' : ''}">
                                             <td class="font-bold ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : ''}">${e.rank}</td>
-                                            <td><span class="font-medium">${escapeHtml(e.username)}</span>${e.affiliation ? ` <span class="text-gray-500 text-sm">(${escapeHtml(e.affiliation)})</span>` : ''}</td>
-                                            <td class="text-gray-400">${escapeHtml(e.team_name) || '-'}</td>
+                                            <td><span class="font-medium">${e.username}</span>${e.affiliation ? ` <span class="text-gray-500 text-sm">(${e.affiliation})</span>` : ''}</td>
+                                            <td class="text-gray-400">${e.team_name || '-'}</td>
                                             <td style="text-align:right">${e.solves}</td>
                                             <td style="text-align:right" class="font-bold text-yellow-500">${e.score}</td>
                                         </tr>
@@ -652,11 +634,6 @@
                         </table>
                     </div>
                 </div>`;
-        }
-
-        function openJoinTeam(id) {
-            const team = state.teams.find(t => t.id === id);
-            if (team) showModal('joinTeam', team);
         }
 
         function renderTeams() {
@@ -671,13 +648,13 @@
                         ${state.teams.length === 0 ? '<div class="col-span-3 text-center text-gray-500 py-12">No teams yet</div>' :
                             state.teams.map(t => `
                                 <div class="card p-6">
-                                    <h3 class="text-xl font-bold mb-2">${escapeHtml(t.name)}</h3>
-                                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">${escapeHtml(t.description) || 'No description'}</p>
+                                    <h3 class="text-xl font-bold mb-2">${t.name}</h3>
+                                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">${t.description || 'No description'}</p>
                                     <div class="flex justify-between items-center mb-4">
                                         <span class="text-gray-500">${t.member_count || 0} / 5 members</span>
                                         <span class="text-yellow-500 font-bold">${t.score || 0} pts</span>
                                     </div>
-                                    ${state.user && !state.user.team_id ? `<button onclick="openJoinTeam('${t.id}')" class="btn btn-secondary w-full">Join</button>` : ''}
+                                    ${state.user && !state.user.team_id ? `<button onclick="showModal('joinTeam', ${JSON.stringify(t).replace(/"/g, '&quot;')})" class="btn btn-secondary w-full">Join</button>` : ''}
                                 </div>
                             `).join('')
                         }
@@ -693,11 +670,11 @@
                         ${state.achievements.map(a => `
                             <div class="card p-4 ${a.unlocked ? 'border-yellow-500/50' : 'opacity-50'}">
                                 <div class="flex items-center gap-4">
-                                    <div class="text-3xl">${a.icon || '🏆'}</div>
+                                    <div class="text-3xl">${a.icon}</div>
                                     <div>
-                                        <h3 class="font-bold ${a.unlocked ? 'text-yellow-400' : ''}">${escapeHtml(a.name)}</h3>
-                                        <p class="text-sm text-gray-400">${escapeHtml(a.description)}</p>
-                                        <span class="text-xs text-gray-500">+${a.points || 0} pts</span>
+                                        <h3 class="font-bold ${a.unlocked ? 'text-yellow-400' : ''}">${a.name}</h3>
+                                        <p class="text-sm text-gray-400">${a.description}</p>
+                                        <span class="text-xs text-gray-500">+${a.points} pts</span>
                                     </div>
                                 </div>
                             </div>
@@ -716,12 +693,12 @@
                                 <div class="card p-6">
                                     <div class="flex justify-between items-start">
                                         <div>
-                                            <h3 class="font-bold text-lg">${escapeHtml(w.title)}</h3>
-                                            <p class="text-sm text-gray-500">by ${escapeHtml(w.author)} • ${escapeHtml(w.challenge)} (${escapeHtml(w.category)})</p>
+                                            <h3 class="font-bold text-lg">${w.title}</h3>
+                                            <p class="text-sm text-gray-500">by ${w.author} • ${w.challenge} (${w.category})</p>
                                         </div>
-                                        <span class="text-gray-400">❤️ ${w.likes || 0}</span>
+                                        <span class="text-gray-400">❤️ ${w.likes}</span>
                                     </div>
-                                    <p class="text-gray-400 mt-3">${escapeHtml(w.content_preview)}</p>
+                                    <p class="text-gray-400 mt-3">${w.content_preview}</p>
                                 </div>
                             `).join('')
                         }
@@ -736,12 +713,12 @@
                     <h1 class="font-display text-3xl font-bold mb-8">Profile</h1>
                     <div class="grid md:grid-cols-3 gap-6">
                         <div class="card p-6">
-                            <h2 class="text-2xl font-bold mb-4">${escapeHtml(state.user.username)}</h2>
+                            <h2 class="text-2xl font-bold mb-4">${state.user.username}</h2>
                             <div class="space-y-3 text-sm">
                                 <div class="flex justify-between"><span class="text-gray-400">Score</span><span class="font-bold text-yellow-500">${state.user.score || 0}</span></div>
                                 <div class="flex justify-between"><span class="text-gray-400">Solves</span><span>${state.user.solve_count || 0}</span></div>
-                                <div class="flex justify-between"><span class="text-gray-400">Team</span><span>${escapeHtml(state.user.teams?.name) || 'None'}</span></div>
-                                <div class="flex justify-between"><span class="text-gray-400">Role</span><span class="capitalize">${escapeHtml(state.user.role)}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Team</span><span>${state.user.teams?.name || 'None'}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Role</span><span class="capitalize">${state.user.role}</span></div>
                             </div>
                         </div>
                         <div class="card p-6 md:col-span-2">

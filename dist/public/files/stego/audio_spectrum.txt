@@ -1,0 +1,19 @@
+Audio Spectrogram Challenge
+===========================
+
+In a real challenge, this would be a .wav or .mp3 file.
+
+The flag is hidden in the spectrogram - visible when viewing frequencies over time.
+
+Tools to use:
+1. Audacity: View > Spectrogram
+2. Sonic Visualiser
+3. SoX: sox audio.wav -n spectrogram -o spec.png
+
+The spectrogram shows text written in the frequency domain:
+- Low frequencies: ~100-500 Hz
+- Text visible: WOW{sp3ctr0gr4m}
+
+Online tool: https://convert.ing-now.com/audio-spectrogram-creator/
+
+Flag: WOW{sp3ctr0gr4m}
