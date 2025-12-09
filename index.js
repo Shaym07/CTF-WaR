@@ -255,7 +255,7 @@ app.post('/auth/register', async (req, res) => {
     const userId = uuidv4();
 
     const { data: user, error } = await supabase.from('users').insert({
-      id: userId, username, email, password: hashedPassword, role: 'user', score: 0, created_at: new Date().toISOString()
+      id: userId, username, email, password_hash: hashedPassword, role: 'user', created_at: new Date().toISOString()
     }).select().single();
 
     if (error) throw error;
@@ -269,7 +269,7 @@ app.post('/auth/register', async (req, res) => {
     }
 
     const token = generateToken(user);
-    res.json({ token, user: { ...user, password: undefined } });
+    res.json({ token, user: { ...user, password_hash: undefined } });
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ error: 'Registration failed' });
@@ -278,15 +278,20 @@ app.post('/auth/register', async (req, res) => {
 
 app.post('/auth/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
+    const { email, username, password } = req.body;
+    const loginId = email || username;
+    let { data: user } = await supabase.from('users').select('*').eq('email', loginId).single();
+    if (!user) {
+      const { data: userByName } = await supabase.from('users').select('*').eq('username', loginId).single();
+      user = userByName;
+    }
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-    if (user.banned) return res.status(403).json({ error: 'Account banned' });
-    const valid = await bcrypt.compare(password, user.password);
+    if (user.is_banned) return res.status(403).json({ error: 'Account banned' });
+    const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
     await supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', user.id);
     const token = generateToken(user);
-    res.json({ token, user: { ...user, password: undefined } });
+    res.json({ token, user: { ...user, password_hash: undefined } });
   } catch (err) {
     res.status(500).json({ error: 'Login failed' });
   }
@@ -296,7 +301,7 @@ app.get('/auth/me', requireAuth, async (req, res) => {
   try {
     const { data: user } = await supabase.from('users').select('*, teams:team_id (id, name, captain_id)').eq('id', req.user.id).single();
     const { count: solveCount } = await supabase.from('solves').select('id', { count: 'exact' }).eq('user_id', req.user.id);
-    res.json({ user: { ...user, password: undefined, solve_count: solveCount || 0 } });
+    res.json({ user: { ...user, password_hash: undefined, solve_count: solveCount || 0 } });
   } catch (err) {
     res.status(500).json({ error: 'Failed to get user' });
   }
@@ -315,10 +320,11 @@ app.put('/auth/profile', requireAuth, async (req, res) => {
 app.post('/auth/change-password', requireAuth, async (req, res) => {
   try {
     const { current_password, new_password } = req.body;
-    const valid = await bcrypt.compare(current_password, req.user.password);
+    const { data: freshUser } = await supabase.from('users').select('password_hash').eq('id', req.user.id).single();
+    const valid = await bcrypt.compare(current_password, freshUser.password_hash);
     if (!valid) return res.status(400).json({ error: 'Current password incorrect' });
     const hashed = await bcrypt.hash(new_password, 12);
-    await supabase.from('users').update({ password: hashed }).eq('id', req.user.id);
+    await supabase.from('users').update({ password_hash: hashed }).eq('id', req.user.id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Password change failed' });
@@ -332,7 +338,7 @@ app.get('/challenges', optionalAuth, async (req, res) => {
     if (!access.allowed && req.user?.role !== 'admin') return res.status(403).json({ error: access.reason });
 
     let query = supabase.from('challenges').select('*');
-    if (req.user?.role !== 'admin') query = query.or('state.eq.visible,state.is.null');
+    if (req.user?.role !== 'admin') query = query.or('is_visible.eq.true,is_visible.is.null');
     const { data: challenges, error } = await query.order('category').order('points');
     if (error) throw error;
 
@@ -365,8 +371,9 @@ app.get('/challenges', optionalAuth, async (req, res) => {
       if (c.scoring_type === 'dynamic') points = scoringAlgorithms.dynamic(c.initial_points || c.points, solveCount, c.decay || 15, c.minimum_points || 50);
       else if (c.scoring_type === 'logarithmic') points = scoringAlgorithms.logarithmic(c.initial_points || c.points, solveCount, c.minimum_points || 50);
 
+      const { flag, ...safeChallenge } = c;  // Remove flag from response
       return {
-        ...c, points, solve_count: solveCount, solved_by_user: userSolves.has(c.id),
+        ...safeChallenge, points, solve_count: solveCount, solved_by_user: userSolves.has(c.id),
         first_blood_user: firstBloodMap[c.id] || null, hints: hintMap[c.id] || [],
         description_html: renderMarkdown(c.description)
       };
@@ -387,7 +394,7 @@ app.get('/challenges', optionalAuth, async (req, res) => {
 
 app.get('/challenges/categories', async (req, res) => {
   try {
-    const { data } = await supabase.from('challenges').select('category').or('state.eq.visible,state.is.null');
+    const { data } = await supabase.from('challenges').select('category').or('is_visible.eq.true,is_visible.is.null');
     const categories = [...new Set(data?.map(c => c.category) || [])];
     res.json({ categories });
   } catch (err) {
@@ -816,7 +823,7 @@ app.get('/stats', async (req, res) => {
     const [users, teams, challenges, solves] = await Promise.all([
       supabase.from('users').select('id', { count: 'exact' }),
       supabase.from('teams').select('id', { count: 'exact' }),
-      supabase.from('challenges').select('id', { count: 'exact' }).or('state.eq.visible,state.is.null'),
+      supabase.from('challenges').select('id', { count: 'exact' }).or('is_visible.eq.true,is_visible.is.null'),
       supabase.from('solves').select('id', { count: 'exact' })
     ]);
     res.json({ users: users.count || 0, teams: teams.count || 0, challenges: challenges.count || 0, solves: solves.count || 0 });
