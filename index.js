@@ -255,9 +255,7 @@ app.post('/auth/register', async (req, res) => {
     const userId = uuidv4();
 
     const { data: user, error } = await supabase.from('users').insert({
-      id: userId, username, email, password: hashedPassword, role: 'user', score: 0,
-      bracket_id: bracket_id || null, affiliation: affiliation || null, country: country || null,
-      verified: false, banned: false, hidden: false, created_at: new Date().toISOString()
+      id: userId, username, email, password: hashedPassword, role: 'user', score: 0, created_at: new Date().toISOString()
     }).select().single();
 
     if (error) throw error;
